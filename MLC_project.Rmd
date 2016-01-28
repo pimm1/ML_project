@@ -1,0 +1,60 @@
+---
+title: "MLC_Project"
+author: "Pimm"
+date: "28 de enero de 2016"
+output: html_document
+---
+
+This is my project for the coursera Machine Learning Course.
+Our goal is given data collected from barbell lifts performing be able to know if it is well done.
+We have to determinate the classe parameter from all data collected by acelerometer.
+
+First we load the librarys we might need:
+
+```{r, echo=FALSE}
+library(caret)
+library(randomForest)
+
+```
+
+After that we load the data we have alredy download:
+
+```{r, echo=FALSE}
+test<-read.csv("pml-testing.csv")
+train<-read.csv("pml-training.csv")
+```
+
+In a very preliminary analisys we see that the first seven columumns are useless, so we clean it:
+
+```{r}
+test1<-test[,-c(1:7)]
+train1<-train[,-c(1:7)]
+```
+
+In a second preliminar analisys over both data sets we see there are plenty of values NA, and if they are NA
+in test data it is difficult that they are useful for prediction.
+
+We clean it taken away NAs columns:
+
+```{r}
+rem<-NULL
+for (col.nr in 1:dim(test1)[2]){ if (sum(is.na(test1[,col.nr]))) { rem =c(rem, col.nr)}}
+test2<-test1[,-rem]
+train2<-train1[,-rem]
+```
+
+Now it is time to fit our model.
+We do it with Random Forest model and for performance reason we split data in 3
+
+```{r}
+modfit<-train(classe~.,method="rf",trControl=trainControl(method="cv",number=3),data=train2)
+```
+
+Last we clean the test set  (the last column is not necessary) and predict:
+
+```{r}
+test3<-test2[,-53]
+predict(modfit,newdata=test3)
+```
+
+We introduce the predicted output in our given Quitz and we have full success (20/20)!!!
